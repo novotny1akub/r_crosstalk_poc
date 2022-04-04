@@ -4,15 +4,6 @@ if(rstudioapi::isAvailable()){
 
 cars_shared <- crosstalk::SharedData$new(mtcars)
 
-css <- list(
-  htmltools::htmlDependency(
-    name = "font-awesome"
-    ,version = "4.3.0"
-    ,src = c(href="http://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css")
-    ,stylesheet = "font-awesome.min.css"
-  )
-)
-
 # filters
 f <- list(
   crosstalk::filter_checkbox("cyl", "Cylinders", cars_shared, ~cyl, inline = TRUE),
@@ -21,7 +12,7 @@ f <- list(
 )
 
 # plot
-p <- d3scatter::d3scatter(cars_shared, ~mpg, ~disp, ~am)
+p <- d3scatter::d3scatter(cars_shared, ~mpg, ~disp, ~am, color = ~gear)
 
 # table
 dt <- DT::datatable(
@@ -31,7 +22,6 @@ dt <- DT::datatable(
 
 # putting together the widget
 widget <- shiny::tagList(
-  css,
   shiny::tags$h1("This is a title"),
   crosstalk::bscols(widths = c(2, 8), f, p),
   shiny::tags$div("This is a random html text."),
@@ -39,19 +29,21 @@ widget <- shiny::tagList(
 )
 # htmltools::browsable(widget)
 
+# bslib::bs_theme_preview(bslib::bs_theme(primary = "darkred"), with_themer = FALSE)
 
-themed_widget <- bslib::page(widget, theme = bslib::bs_theme(primary = "red", secondary = "darkred"))
-
-# exporting
-htmltools::save_html(widget, file = "regular_widget.html")
-browseURL(
-  file.path(getwd(), "regular_widget.html")
+bs_widget <- bslib::page_fixed(
+  widget,
+  theme =  bs_add_rules(
+    bslib::bs_global_theme(primary = "darkred"),
+    sass::as_sass(" table.dataTable tbody tr.active td { background: darkred !important; }")
+  )
 )
 
+
 # exporting
-htmltools::save_html(themed_widget, file = "themed_widget.html")
+htmltools::save_html(bs_widget, file = "bs_widget.html")
 browseURL(
-  file.path(getwd(), "themed_widget.html")
+  file.path(getwd(), "bs_widget.html")
 )
 
 
