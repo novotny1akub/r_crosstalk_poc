@@ -1,3 +1,5 @@
+# 
+
 if(rstudioapi::isAvailable()){
   setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 }
@@ -30,18 +32,20 @@ widget <- shiny::tagList(
 # htmltools::browsable(widget)
 
 # bslib::bs_theme_preview(bslib::bs_theme(primary = "darkred"), with_themer = FALSE)
+bslib::bs_global_theme(primary = "darkred")
+theme <- bslib::bs_add_rules(
+  bslib::bs_global_theme(primary = "darkred"),
+  sass::as_sass(" table.dataTable tbody tr.active td { background: darkred !important; }")
+)
 
 bs_widget <- bslib::page_fixed(
   widget,
-  theme =  bs_add_rules(
-    bslib::bs_global_theme(primary = "darkred"),
-    sass::as_sass(" table.dataTable tbody tr.active td { background: darkred !important; }")
-  )
+  theme = theme
 )
 
 
 # exporting
-htmltools::save_html(bs_widget, file = "bs_widget.html")
+readr::write_lines(repr::repr_html(bs_widget), "bs_widget.html")
 browseURL(
   file.path(getwd(), "bs_widget.html")
 )
